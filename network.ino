@@ -1,6 +1,6 @@
 /*
 
-  Flopify ESP32 / Network Wifi and Http server
+  Flopper ESP32 / Network Wifi and Http server
   
   This software is released under the MIT License.
   https://opensource.org/licenses/MIT
@@ -37,12 +37,12 @@ void setup_network(){
   Server.on("/set_rec_url/", setRecUrl);
 
   Config.autoReconnect = true;
-  Config.apid = "flopify";
+  Config.apid = "flopper";
 
   Portal.config(Config);
 
   if (Portal.begin()) {
-    if (MDNS.begin("flopify")) {
+    if (MDNS.begin("flopper")) {
       MDNS.addService("http", "tcp", 80);
     }
     Serial.println("WiFi connected: " + WiFi.localIP().toString());
@@ -161,13 +161,13 @@ void rootPage() {
   String  content = 
     "<html>"
     "<head>"
-    "<script src=\"http://www.flopify.org/jquery.js\"></script>"
-    "<script src=\"http://www.flopify.org/esp32_client.js\"></script>"
+    "<script src=\"http://play.flopper.net/jquery.js\"></script>"
+    "<script src=\"http://play.flopper.net/esp32_client.js\"></script>"
     "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
     "</head>"
     "<body>"
     "<div id=\"canvas\"></div>"
-    "<h2 align=\"center\" style=\"color:blue;margin:20px;\">Flopify</h2>"
+    "<h2 align=\"center\" style=\"color:blue;margin:20px;\">Flopper</h2>"
     "<h3 align=\"center\" style=\"color:gray;margin:10px;\">{{DateTime}}</h3>"
     "<p style=\"padding-top:10px;text-align:center\">" AUTOCONNECT_LINK(COG_32) "</p>"
     "</body>"

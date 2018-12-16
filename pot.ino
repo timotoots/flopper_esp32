@@ -1,6 +1,6 @@
 /*
 
-  Flopify ESP32 / Potentiometer
+  Flopper ESP32 / Potentiometer
   
   This software is released under the MIT License.
   https://opensource.org/licenses/MIT

@@ -1,6 +1,6 @@
 /*
 
-  Flopify ESP32 / Toiúuch
+  Flopper ESP32 / Toiúuch
   
   This software is released under the MIT License.
   https://opensource.org/licenses/MIT

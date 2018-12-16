@@ -1,6 +1,6 @@
 /*
 
-  Flopify ESP32 / NFC
+  Flopper ESP32 / NFC
   
   This software is released under the MIT License.
   https://opensource.org/licenses/MIT

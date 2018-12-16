@@ -1,6 +1,6 @@
 /*
 
-  Flopify ESP32 / Led
+  Flopper ESP32 / Led
   
   This software is released under the MIT License.
   https://opensource.org/licenses/MIT
