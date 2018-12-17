@@ -7,6 +7,11 @@
 
 */
 
+const int DEBUG_ENABLED = 1;
+
+int flag_rec_now = 0;
+
+
 String current_floppy_uid = "";
 String current_floppy_url = "https://soundcloud.com/trippie-hippie-2/1400999-freestyle-ft-juice-wrld";
 
@@ -45,7 +50,7 @@ void setup() {
   Serial.begin(115200);
 
   Serial.println();
-  Serial.println("Flopify boot!");
+  Serial.println("Flopper boot!");
 
   setup_pot();
 
@@ -68,7 +73,7 @@ void setup() {
   xTaskCreate(
                    loop_nfc,          /* Task function. */
                     "NFC",        /* String with name of task. */
-                    30000,            /* Stack size in words. */
+                    20000,            /* Stack size in words. */
                     NULL,             /* Parameter passed as input of the task */
                     1,                /* Priority of the task. */
                     NULL);            /* Task handle. */
@@ -99,16 +104,13 @@ void setup() {
                     NULL,             /* Parameter passed as input of the task */
                     1,                /* Priority of the task. */
                     NULL);            /* Task handle. */
- 
 
 }
 
 ////////////////////////////////////////////////////////////////
 
 void loop() {
-
-
-
   
+ loop_serial(NULL);
  
 }

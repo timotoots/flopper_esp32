@@ -12,7 +12,6 @@
 
 
 
-
 int threshold = 15;
 bool touch_prev = false;
 bool touch_next = false;
@@ -41,7 +40,29 @@ void touch_act_pause(){
  touch_pause = true;
 }
 
+
+
+
 void touch_act_rec(){
+
+ static unsigned long last_interrupt_time = 0;
+ unsigned long interrupt_time = millis();
+ // If interrupts come faster than 200ms, assume it's a bounce and ignore
+ if (interrupt_time - last_interrupt_time > 2000)
+ {
+    if(url_to_rec!=""){
+      flag_rec_now = 1; // write url to tag
+    } else {
+      Serial.println("Show recording in UI");
+      // show rec page on web ui
+    }
+ }
+ last_interrupt_time = interrupt_time;
+
+  
+  touch_rec = true;
+  
+  /*
   if(accept_touch_rec){
     Serial.println("XXX");
    accept_touch_rec = false;
@@ -49,7 +70,7 @@ void touch_act_rec(){
    nfcSaveUrl();
    accept_touch_rec = true;
   }
-
+*/
 }
 
 void touch_act_like(){

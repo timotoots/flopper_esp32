@@ -10,6 +10,8 @@
 
 ///////////////////////////////////////////////////////////////////
 
+int currentLed[] = {0,0,0};
+
 
 void setup_led() {
   analogWriteResolution(PIN_LED_R, 12);
@@ -18,8 +20,23 @@ void setup_led() {
 
 }
 
-void loop_led(void * parameter ) {
+void ledRecReady(){
 
+  int newLed[] = {6,0,0};
+  showLed(newLed);
+    
+}
+
+void showLed(int newLed[]){
+
+  analogWrite(PIN_LED_R, newLed[0]);
+  analogWrite(PIN_LED_G, newLed[1]);
+  analogWrite(PIN_LED_B, newLed[2]);
+  
+}
+
+void loop_led(void * parameter ) {
+  /*
   analogWrite(PIN_LED_R, 6);
   analogWrite(PIN_LED_G, 10);
   analogWrite(PIN_LED_B, 10);
@@ -30,7 +47,8 @@ void loop_led(void * parameter ) {
   analogWrite(PIN_LED_R, 0);
   analogWrite(PIN_LED_G, 0);
   analogWrite(PIN_LED_B, 0);
-
+*/
    delay(1000);
+   
   loop_led(NULL);
 }

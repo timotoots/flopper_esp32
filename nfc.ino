@@ -8,6 +8,9 @@
 */
 ////////////////////////////////////////////////////////////////
 
+int number_times_before_read = 0;
+String payloadAsString = "";
+ int payloadLength  = 0;
 
 #include <SPI.h>
 #include <PN532_SPI.h>
@@ -29,10 +32,11 @@ void loop_nfc(void * parameter ){
 
     // https://forums.adafruit.com/viewtopic.php?f=31&t=58903&start=15
 
-    if(url_to_rec==""){
-    readNDEF();  
-    }
-  
+   // if(url_to_rec==""){
+      readNDEF();  
+  //  }
+//
+   // writeNDEF("aaa");
 /*
     Serial.print("URL:");
     Serial.println(current_floppy_url);
@@ -41,7 +45,7 @@ void loop_nfc(void * parameter ){
     Serial.println(current_floppy_uid);
 */
 
-    delay(100);
+    delay(500);
     loop_nfc(NULL);
 
 }
@@ -51,6 +55,7 @@ void loop_nfc(void * parameter ){
 
 void nfcSaveUrl(){
 
+      ledRecReady();
       Serial.println("nfcSaveUrl!");
 
   if(url_to_rec!=""){
@@ -64,19 +69,25 @@ void nfcSaveUrl(){
 
 void writeNDEF(String url){
 
+    Serial.println("--------------------");
+    Serial.println("REC: Started");
+
     bool success = false;
 
-    Serial.println("REC: Insert floppy to reader!");
-    //if (nfc.tagPresent()) {
+    if (nfc.tagPresent()) {
 
-      Serial.println("REC: Floppy inserted!");
+      Serial.println("REC: Floppy found!");
 
       NfcTag tag = nfc.read();
+      
+      Serial.println("REC: Tag type: ");
+      Serial.println(tag.getTagType());
+
       if (tag.hasNdefMessage()){
           Serial.println("REC: Floppy is already NDEF formatted, overwriting!");
           success = true;
       } else {
-          Serial.println("REC: Floppy is formatted to NDEF!");
+          Serial.println("REC: Floppy is not formatted to NDEF!");
           success = nfc.format();
           if(!success){
             Serial.println("REC: Floppy format failed!");
@@ -90,16 +101,25 @@ void writeNDEF(String url){
   
           success = nfc.write(message);
           if (success) {
-            Serial.println("REC: Floppy write success!");        
+            Serial.println("REC: Floppy write success!");   
+            current_floppy_uid = "";     
           } else {
             Serial.println("REC: Floppy write failed!");
+            current_floppy_uid = "";   
           }
+      } else {
+        current_floppy_uid = "";   
       }
-       
-   // } else {
-     // delay(3000);
+
+      Serial.println("--------------------");
+
+    } else {
+      Serial.println("REC: No floppy found");
+      delay(3000);
      // writeNDEF(url);
-   // }
+      Serial.println("--------------------");
+
+    }
     
 }
 
@@ -107,91 +127,138 @@ void writeNDEF(String url){
 
 void readNDEF(){
 
-  Serial.println("\nScan a NFC tag\n");
+ // Serial.println("A");
 
-  if (nfc.tagPresent())
-  {
-    NfcTag tag = nfc.read();
-    Serial.println(tag.getTagType());
-    Serial.print("UID: ");
-    Serial.println(tag.getUidString());
+ if (nfc.tagPresent()){
 
-    if(current_floppy_uid==tag.getUidString()){
+    number_times_before_read++;
+
+    // Don't read before tag is stable in the reader
+    if(number_times_before_read<5){
+      delay(100);
       return;
     }
     
+    NfcTag tag = nfc.read();
+
+    if(flag_rec_now==1){  
+      flag_rec_now = 0;
+      Serial.println("Write to NDEF");
+      flag_rec_now = 0;
+      writeNDEF(url_to_rec);
+      url_to_rec = "";
+      delay(1000);
+    }
+
+    // Read the same floppy only once
+    if(current_floppy_uid == tag.getUidString()){
+      return;
+    }
+
+    // Get UID
+    String tag_uid = tag.getUidString();
+    tag_uid.replace(" ","");
     current_floppy_uid = tag.getUidString();
 
-    if (tag.hasNdefMessage()) // every tag won't have a message
-    {
+    Serial.println("--------------------");
+    Serial.println("NEW FLOPPY INSERTED!");
+    Serial.print("Tag Type: ");
+    Serial.println(tag.getTagType());
+
+    Serial.print("Tag UID: ");   
+    Serial.println(tag_uid);
+
+  
+    if (tag.hasNdefMessage()){
 
       NdefMessage message = tag.getNdefMessage();
-      Serial.print("\nThis NFC Tag contains an NDEF Message with ");
-      Serial.print(message.getRecordCount());
-      Serial.print(" NDEF Record");
-      if (message.getRecordCount() != 1) {
-        Serial.print("s");
-      }
-      Serial.println(".");
+      
+     // Serial.print("NDEF records:");
+    //  Serial.println(message.getRecordCount());
 
-      // cycle through the records, printing some info from each
+      int url_found = 0;
+      
       int recordCount = message.getRecordCount();
-      for (int i = 0; i < recordCount; i++)
-      {
-        Serial.print("\nNDEF Record ");Serial.println(i+1);
+      
+      for (int i = 0; i < recordCount; i++){
+
         NdefRecord record = message.getRecord(i);
-        // NdefRecord record = message[i]; // alternate syntax
 
-        Serial.print("  TNF: ");Serial.println(record.getTnf());
-        Serial.print("  Type: ");Serial.println(record.getType()); // will be "" for TNF_EMPTY
+        if(DEBUG_ENABLED){
+          
+          Serial.print("NDEF Record ");
+          Serial.print(i);
+          Serial.print(" / TNF=");
+          Serial.print(record.getTnf());
+          Serial.print(" / Type=");
+          Serial.print(record.getType());
 
-        // The TNF and Type should be used to determine how your application processes the payload
-        // There's no generic processing for the payload, it's returned as a byte[]
-        int payloadLength = record.getPayloadLength();
-        byte payload[payloadLength];
-        record.getPayload(payload);
-
-        // Print the Hex and Printable Characters
-        Serial.print("  Payload (HEX): ");
-        PrintHexChar(payload, payloadLength);
-
-        // Force the data into a String (might work depending on the content)
-        // Real code should use smarter processing
-        String payloadAsString = "";
-        for (int c = 0; c < payloadLength; c++) {
-          payloadAsString += (char)payload[c];
         }
 
-     
+        payloadAsString = "";
         
-        Serial.print("  Payload (as String): ");
-        Serial.println(payloadAsString);
-        Serial.println(payloadAsString.length());
-
-        if(payloadAsString.length()>10){
-
-           current_floppy_url = "";
+        if(record.getType()=="U" && url_found==0){ // if URL
+        
+          int payloadLength = record.getPayloadLength();
+          byte payload[payloadLength];
+          record.getPayload(payload);
+  
+          
           for (int c = 0; c < payloadLength; c++) {
-            current_floppy_url += (char)payload[c];
+            payloadAsString += (char)payload[c];
+          }
+
+           for (int c = 0; c < payloadLength; c++) {
+              current_floppy_url += (char)payload[c];
+            }
+
+          if(DEBUG_ENABLED){
+          Serial.print(" / Payload=");
+          Serial.print(payloadAsString);
           }
           
-        } else {
-          current_floppy_url = "";
-   
-        }
-    
-         
+          url_found = 1;
+          
+        } // if URL
 
-        // id is probably blank and will return ""
-        String uid = record.getId();
-        if (uid != "") {
-          Serial.print("  ID: ");Serial.println(uid);
+        Serial.println();
+        
+      } // for
+
+        if(url_found==1){
+          Serial.print("Tag URL:");
+          Serial.println(payloadAsString);
+
+            if(payloadAsString.length()<10){
+
+             current_floppy_url = "";
+
+            
+          } 
+
+        
         }
-      }
+
+      Serial.println("---------------");
+
+    } else {
+      Serial.println("Tag has no NDEF");
+      Serial.println("---------------");
     }
-      delay(1000);
-  }
+    
+  } else if(current_floppy_uid!="") {
 
+      Serial.println("---------------");
+      Serial.println("FLOPPY REMOVED!");
+      Serial.println("---------------");
+
+      current_floppy_uid = "";
+      number_times_before_read = 0;
+  }
+  delay(100);
+
+
+  /////////////////////
   
 }
 
