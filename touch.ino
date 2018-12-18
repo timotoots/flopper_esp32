@@ -12,7 +12,7 @@
 
 
 
-int threshold = 15;
+int threshold = 25;
 bool touch_prev = false;
 bool touch_next = false;
 bool touch_random = false;

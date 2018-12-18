@@ -78,18 +78,16 @@ void writeNDEF(String url){
 
       Serial.println("REC: Floppy found!");
 
-      NfcTag tag = nfc.read();
-      
-      Serial.println("REC: Tag type: ");
-      Serial.println(tag.getTagType());
-
-      if (tag.hasNdefMessage()){
+      if (current_floppy_ndef){
           Serial.println("REC: Floppy is already NDEF formatted, overwriting!");
           success = true;
       } else {
           Serial.println("REC: Floppy is not formatted to NDEF!");
+          delay(500);
           success = nfc.format();
-          if(!success){
+          if(success){
+            Serial.println("REC: Floppy format success!");
+          } else {
             Serial.println("REC: Floppy format failed!");
           }
       }
@@ -108,6 +106,7 @@ void writeNDEF(String url){
             current_floppy_uid = "";   
           }
       } else {
+        Serial.println("REC: Floppy format failed!??");
         current_floppy_uid = "";   
       }
 
@@ -171,6 +170,7 @@ void readNDEF(){
   
     if (tag.hasNdefMessage()){
 
+      current_floppy_ndef = 1;
       NdefMessage message = tag.getNdefMessage();
       
      // Serial.print("NDEF records:");
@@ -243,6 +243,7 @@ void readNDEF(){
 
     } else {
       Serial.println("Tag has no NDEF");
+      current_floppy_ndef = 0;
       Serial.println("---------------");
     }
     
@@ -250,6 +251,7 @@ void readNDEF(){
 
       Serial.println("---------------");
       Serial.println("FLOPPY REMOVED!");
+      current_floppy_ndef = 0;
       Serial.println("---------------");
 
       current_floppy_uid = "";

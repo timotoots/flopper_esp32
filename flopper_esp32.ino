@@ -14,6 +14,7 @@ int flag_rec_now = 0;
 
 String current_floppy_uid = "";
 String current_floppy_url = "https://soundcloud.com/trippie-hippie-2/1400999-freestyle-ft-juice-wrld";
+int current_floppy_ndef = 0;
 
 String url_to_rec = "";
 
