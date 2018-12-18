@@ -6,6 +6,7 @@
   https://opensource.org/licenses/MIT
 
 */
+
 ////////////////////////////////////////////////////////////////
 
 int number_times_before_read = 0;
@@ -28,111 +29,48 @@ void setup_nfc(){
 
 }
 
+////////////////////////////////////////////////////////////////
+
 void loop_nfc(void * parameter ){
 
-    // https://forums.adafruit.com/viewtopic.php?f=31&t=58903&start=15
-
-   // if(url_to_rec==""){
-      readNDEF();  
-  //  }
-//
-   // writeNDEF("aaa");
-/*
-    Serial.print("URL:");
-    Serial.println(current_floppy_url);
-
-   Serial.print("UID:");
-    Serial.println(current_floppy_uid);
-*/
-
-    delay(500);
+    readNDEF();  
+    delay(100);
     loop_nfc(NULL);
+
+    // Future idea, enable IRQ?
+    // https://forums.adafruit.com/viewtopic.php?f=31&t=58903&start=15
 
 }
 
 ////////////////////////////////////////////////////////////////
 
-
+/*
+// Gets trigger by touch button
 void nfcSaveUrl(){
 
-      ledRecReady();
       Serial.println("nfcSaveUrl!");
 
-  if(url_to_rec!=""){
-      writeNDEF(url_to_rec);
-      url_to_rec = "";
-    } else {
-      Serial.println("nothing to rec!");
-      // httpShowRecPage();  
-    }
+      if(url_to_rec!=""){
+        ledRecReady(); // LED status
+        writeNDEF(url_to_rec); // Save to NF
+        url_to_rec = "";
+      } else {
+        Serial.println("nothing to rec!");
+        // httpShowRecPage();  
+      }
 }
 
-void writeNDEF(String url){
-
-    Serial.println("--------------------");
-    Serial.println("REC: Started");
-
-    bool success = false;
-
-    if (nfc.tagPresent()) {
-
-      Serial.println("REC: Floppy found!");
-
-      if (current_floppy_ndef){
-          Serial.println("REC: Floppy is already NDEF formatted, overwriting!");
-          success = true;
-      } else {
-          Serial.println("REC: Floppy is not formatted to NDEF!");
-          delay(500);
-          success = nfc.format();
-          if(success){
-            Serial.println("REC: Floppy format success!");
-          } else {
-            Serial.println("REC: Floppy format failed!");
-          }
-      }
-       
-      if (success) {
-          
-          NdefMessage message = NdefMessage();
-          message.addUriRecord(url);
-  
-          success = nfc.write(message);
-          if (success) {
-            Serial.println("REC: Floppy write success!");   
-            current_floppy_uid = "";     
-          } else {
-            Serial.println("REC: Floppy write failed!");
-            current_floppy_uid = "";   
-          }
-      } else {
-        Serial.println("REC: Floppy format failed!??");
-        current_floppy_uid = "";   
-      }
-
-      Serial.println("--------------------");
-
-    } else {
-      Serial.println("REC: No floppy found");
-      delay(3000);
-     // writeNDEF(url);
-      Serial.println("--------------------");
-
-    }
-    
-}
+*/
 
 ////////////////////////////////////////////////////////////////
 
 void readNDEF(){
 
- // Serial.println("A");
-
  if (nfc.tagPresent()){
 
     number_times_before_read++;
 
-    // Don't read before tag is stable in the reader
+    // Don't read before tag is stable in the reader, otherwise gives errors
     if(number_times_before_read<5){
       delay(100);
       return;
@@ -140,13 +78,15 @@ void readNDEF(){
     
     NfcTag tag = nfc.read();
 
+    // Are we recording?
     if(flag_rec_now==1){  
       flag_rec_now = 0;
       Serial.println("Write to NDEF");
-      flag_rec_now = 0;
       writeNDEF(url_to_rec);
       url_to_rec = "";
+      current_floppy_uid = "";
       delay(1000);
+      return;
     }
 
     // Read the same floppy only once
@@ -262,6 +202,66 @@ void readNDEF(){
 
   /////////////////////
   
+} // readNdef
+
+////////////////////////////////////////////////////////////////
+
+
+void writeNDEF(String url){
+
+    Serial.println("--------------------");
+    Serial.println("REC: Started");
+
+    bool success = false;
+
+    if (nfc.tagPresent()) {
+
+      Serial.println("REC: Floppy found!");
+
+      if (current_floppy_ndef){
+          Serial.println("REC: Floppy is already NDEF formatted, overwriting!");
+          success = true;
+      } else {
+          Serial.println("REC: Floppy is not formatted to NDEF!");
+          delay(500);
+          success = nfc.format();
+          if(success){
+            Serial.println("REC: Floppy format success!");
+          } else {
+            Serial.println("REC: Floppy format failed!");
+          }
+      }
+       
+      if (success) {
+          
+          NdefMessage message = NdefMessage();
+          message.addUriRecord(url);
+  
+          success = nfc.write(message);
+          if (success) {
+            Serial.println("REC: Floppy write success!");   
+            current_floppy_uid = "";     
+          } else {
+            Serial.println("REC: Floppy write failed!");
+            current_floppy_uid = "";   
+          }
+      } else {
+        Serial.println("REC: Floppy format failed!??");
+        current_floppy_uid = "";   
+      }
+
+      Serial.println("--------------------");
+
+    } else {
+      Serial.println("REC: No floppy found");
+      delay(3000);
+     // writeNDEF(url);
+      Serial.println("--------------------");
+
+    }
+    
 }
+
+
 
 ////////////////////////////////////////////////////////////////
