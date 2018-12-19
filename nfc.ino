@@ -148,6 +148,7 @@ void readNDEF(){
             payloadAsString += (char)payload[c];
           }
 
+           current_floppy_url = "";
            for (int c = 0; c < payloadLength; c++) {
               current_floppy_url += (char)payload[c];
             }
@@ -166,6 +167,7 @@ void readNDEF(){
       } // for
 
         if(url_found==1){
+          ledFloppyInserted();
           Serial.print("Tag URL:");
           Serial.println(payloadAsString);
 
@@ -184,6 +186,7 @@ void readNDEF(){
     } else {
       Serial.println("Tag has no NDEF");
       current_floppy_ndef = 0;
+      current_floppy_url = "";
       Serial.println("---------------");
     }
     
@@ -193,8 +196,9 @@ void readNDEF(){
       Serial.println("FLOPPY REMOVED!");
       current_floppy_ndef = 0;
       Serial.println("---------------");
-
+      ledFloppyRemoved();
       current_floppy_uid = "";
+      current_floppy_url = "";
       number_times_before_read = 0;
   }
   delay(100);

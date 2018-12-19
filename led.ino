@@ -27,6 +27,19 @@ void ledRecReady(){
     
 }
 
+void ledFloppyInserted(){
+
+  int newLed[] = {0,6,0};
+  showLed(newLed);
+    
+}
+
+void ledFloppyRemoved(){
+
+  int newLed[] = {0,0,0};
+  showLed(newLed);
+}
+
 void showLed(int newLed[]){
 
   analogWrite(PIN_LED_R, newLed[0]);

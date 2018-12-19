@@ -13,7 +13,7 @@ int flag_rec_now = 0;
 
 
 String current_floppy_uid = "";
-String current_floppy_url = "https://soundcloud.com/trippie-hippie-2/1400999-freestyle-ft-juice-wrld";
+String current_floppy_url = "";
 int current_floppy_ndef = 0;
 
 String url_to_rec = "";
@@ -57,19 +57,19 @@ void setup() {
 
   setup_nfc();
   
-//  setup_network();
+  setup_network();
 
   setup_touch();
  
   setup_led();
 
-// xTaskCreate(
-//                    loop_network,          /* Task function. */
-//                    "Network",        /* String with name of task. */
-//                    10000,            /* Stack size in words. */
-//                    NULL,             /* Parameter passed as input of the task */
-//                    1,                /* Priority of the task. */
-//                    NULL);            /* Task handle. */
+ xTaskCreate(
+                    loop_network,          /* Task function. */
+                    "Network",        /* String with name of task. */
+                    10000,            /* Stack size in words. */
+                    NULL,             /* Parameter passed as input of the task */
+                    1,                /* Priority of the task. */
+                   NULL);            /* Task handle. */
  
   xTaskCreate(
                    loop_nfc,          /* Task function. */
