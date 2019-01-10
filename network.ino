@@ -41,13 +41,19 @@ void setup_network(){
 
   Portal.config(Config);
 
-  if (Portal.begin()) {
+  if (Portal.begin()) { //   if (Portal.begin("Liug","timotimo")) {
+
     if (MDNS.begin("flopper")) {
       MDNS.addService("http", "tcp", 80);
     }
     Serial.println("WiFi connected: " + WiFi.localIP().toString());
+
+    registerAtDiscovery();
+     
     //configTime(TIMEZONE, 0, NTPServer1, NTPServer2);
   }
+
+ 
 
 }
 ///////////////////////////////////////////////////////////////////
@@ -100,6 +106,30 @@ void loop_network(void * parameter ){
      
      Portal.handleClient();
      loop_network(NULL);
+}
+
+
+
+void registerAtDiscovery(){
+
+        char uuid[15]; //Create a Unique AP from MAC address
+        uint64_t chipid=ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
+        uint16_t chip = (uint16_t)(chipid>>32);
+        snprintf(uuid,15,"Flopper-%04X",chip);
+
+        HTTPClient http;
+
+        String discovery_url ="http://play.flopper.net/discovery/?local_ip=" +  WiFi.localIP().toString() + "&uuid=" + uuid;
+        
+        http.begin(discovery_url);
+        int httpCode = http.GET();
+        if(httpCode == HTTP_CODE_OK) {
+          Serial.println("Discovery update success!");
+        } else {
+          Serial.println("Discovery update failed!");
+
+        }
+  
 }
 
 ///////////////////////////////////////////////////////////////////
