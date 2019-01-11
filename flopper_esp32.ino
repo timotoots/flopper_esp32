@@ -36,7 +36,7 @@ uint8_t PIN_TOUCH_LIKE = T5; // 12 = T5
 
 uint8_t PIN_POT_OUT = 25; 
 uint8_t PIN_POT_IN = 36; 
-
+uint8_t PIN_POT_OUT_IN = 34; 
 
 
 

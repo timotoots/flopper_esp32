@@ -24,7 +24,7 @@ void loop_pot(void * parameter ) {
 
   digitalWrite(PIN_POT_OUT, HIGH);  // add analogWrite?
 
-  if( abs(potVal - lastPotVal) > 10 ){
+  if( abs(potVal - lastPotVal) > 30 ){
     Serial.print("Potentiometer change: ");
     Serial.println(potVal);
     
